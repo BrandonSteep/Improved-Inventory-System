@@ -23,9 +23,11 @@ public class InventorySlot : MonoBehaviour, IDropHandler
 
     // Drag and Drop
     public void OnDrop(PointerEventData eventData){
-        if(transform.childCount == 0){
-            InventoryItem inventoryItem = eventData.pointerDrag.GetComponent<InventoryItem>();
-            inventoryItem.parentAfterDrag = transform;
+        InventoryItem inventoryItem = eventData.pointerDrag.GetComponent<InventoryItem>();
+        if(transform.childCount != 0){
+            Debug.Log($"Swapping Items");
+            transform.GetChild(0).SetParent(inventoryItem.parentAfterDrag);
         }
+        inventoryItem.parentAfterDrag = transform;
     }
 }
