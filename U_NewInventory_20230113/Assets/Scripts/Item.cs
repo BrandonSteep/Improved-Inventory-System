@@ -14,10 +14,11 @@ public class Item : ScriptableObject
     public Vector2Int range = new Vector2Int(5, 4);
 
     [Header("Only UI")]
-    public bool stackable = false;
+    public Sprite image;
 
     [Header("Both")]
-    public Sprite image;
+    public bool stackable = false;
+    public int maxStackedItems = 1;
 }
 
 public enum ItemType {

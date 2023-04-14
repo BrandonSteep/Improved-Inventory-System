@@ -23,11 +23,50 @@ public class InventorySlot : MonoBehaviour, IDropHandler
 
     // Drag and Drop
     public void OnDrop(PointerEventData eventData){
-        InventoryItem inventoryItem = eventData.pointerDrag.GetComponent<InventoryItem>();
+        InventoryItem heldItem = eventData.pointerDrag.GetComponent<InventoryItem>();
         if(transform.childCount != 0){
-            Debug.Log($"Swapping Items");
-            transform.GetChild(0).SetParent(inventoryItem.parentAfterDrag);
+            InventoryItem slotItem = transform.GetChild(0).GetComponent<InventoryItem>();
+            SlotFilled(heldItem, slotItem);
         }
-        inventoryItem.parentAfterDrag = transform;
+        else{
+            heldItem.parentAfterDrag = transform;
+        }
     }
+
+    // Slot Filled Behaviours
+    #region Slot Filled
+    private void SlotFilled(InventoryItem heldItem, InventoryItem slotItem){
+        if(heldItem.item == slotItem.item && slotItem.item.stackable && slotItem.count < slotItem.item.maxStackedItems){
+            // Debug.Log($"Slot Item's quantity is lower than {slotItem.item.maxStackedItems} - combining stacks now");
+            CombineStacks(heldItem, slotItem);
+        }
+        else{
+            SwapItems(heldItem, slotItem);
+        }
+    }
+
+    private void CombineStacks(InventoryItem heldItem, InventoryItem slotItem){
+        int spaceInStack = slotItem.item.maxStackedItems - slotItem.count;
+        int transferAmount = Mathf.Min(heldItem.count, spaceInStack);
+
+        slotItem.count += transferAmount;
+        heldItem.count -= transferAmount;
+
+        slotItem.RefreshCount();
+
+        if (heldItem.count == 0) {
+            Destroy(heldItem.gameObject);
+        }
+        else{
+            heldItem.RefreshCount();
+            heldItem.transform.SetParent(heldItem.parentAfterDrag);
+        }
+    }
+
+    private void SwapItems(InventoryItem heldItem, InventoryItem slotItem){
+        // Debug.Log($"Swapping Items");
+        slotItem.transform.SetParent(heldItem.parentAfterDrag);
+        heldItem.parentAfterDrag = transform;
+    }
+    #endregion
 }
