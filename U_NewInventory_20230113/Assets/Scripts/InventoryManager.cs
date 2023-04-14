@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
+    public InventoryManager instance;
+
     public InventorySlot[] inventorySlots;
     public GameObject inventoryItemPrefab;
 
@@ -61,9 +63,16 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
-    void SpawnNewItem(Item item, InventorySlot slot){
+    public void SpawnNewItem(Item item, InventorySlot slot){
         GameObject newItemGO = Instantiate(inventoryItemPrefab, slot.transform);
         InventoryItem inventoryItem = newItemGO.GetComponent<InventoryItem>();
+        inventoryItem.InitializeItem(item);
+    }
+
+    public void SpawnNewItem(Item item, InventorySlot slot, int count){
+        GameObject newItemGO = Instantiate(inventoryItemPrefab, slot.transform);
+        InventoryItem inventoryItem = newItemGO.GetComponent<InventoryItem>();
+        inventoryItem.count = count;
         inventoryItem.InitializeItem(item);
     }
 
