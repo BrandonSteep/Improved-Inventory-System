@@ -57,7 +57,15 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void OnEndDrag(PointerEventData eventData){
         image.raycastTarget = true;
 
-        transform.SetParent(parentAfterDrag);
+        if(parentAfterDrag.childCount == 0){
+            transform.SetParent(parentAfterDrag);
+        }
+        else{
+            InventoryItem other = parentAfterDrag.transform.GetChild(0).GetComponent<InventoryItem>();
+            other.count += count;
+            other.RefreshCount();
+            Destroy(this.gameObject);
+        }
 
         countText.raycastTarget = true;
     }
