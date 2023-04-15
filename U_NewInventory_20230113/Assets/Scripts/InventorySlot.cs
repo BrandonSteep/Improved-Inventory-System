@@ -46,8 +46,12 @@ public class InventorySlot : MonoBehaviour, IDropHandler
     }
 
     private void CombineStacks(InventoryItem heldItem, InventoryItem slotItem){
-        int spaceInStack = slotItem.item.maxStackedItems - slotItem.count;
-        int transferAmount = Mathf.Min(heldItem.count, spaceInStack);
+  // TRIGGER MATHF.MIN CALCULATION FROM HERE
+
+        int transferAmount = heldItem.inventory.GetTransferAmount(heldItem.count, slotItem);
+
+    //     int spaceInStack = slotItem.item.maxStackedItems - slotItem.count;
+    //     int transferAmount = Mathf.Min(heldItem.count, spaceInStack);
 
         slotItem.count += transferAmount;
         heldItem.count -= transferAmount;

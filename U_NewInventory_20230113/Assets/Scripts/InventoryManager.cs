@@ -11,14 +11,17 @@ public class InventoryManager : MonoBehaviour
 
     int selectedSlot = -1;
 
-    private void Start(){
+    private void Start()
+    {
         ChangeSelectedSlot(0);
     }
 
     private void Update(){
-        if(Input.inputString != null){
+        if(Input.inputString != null)
+        {
             bool isNumber = int.TryParse(Input.inputString, out int number);
-            if(isNumber && number > 0 && number < 8){
+            if(isNumber && number > 0 && number < 8)
+            {
                 ChangeSelectedSlot(number -1);
             }
         }
@@ -33,34 +36,72 @@ public class InventoryManager : MonoBehaviour
         selectedSlot = newValue;
     }
 
-    public bool AddItem(Item item){
-        if(item.stackable){
-            for (int i = 0; i < inventorySlots.Length; i++){
+    public bool AddItem(Item item, int countToAdd = 1){
+
+        if(item.stackable)
+        {
+            bool stackableItemFound = false;
+
+            for (int i = 0; i < inventorySlots.Length; i++)
+            {
                 InventorySlot slot = inventorySlots[i];
                 InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
-                if (itemInSlot != null && itemInSlot.item == item && itemInSlot.count < itemInSlot.item.maxStackedItems && itemInSlot.item.stackable == true){
-                    
-                    itemInSlot.count ++;
+                
+                if (itemInSlot != null && itemInSlot.item == item && itemInSlot.count < itemInSlot.item.maxStackedItems && itemInSlot.item.stackable == true)
+                {   
+                    int transferAmount = GetTransferAmount(countToAdd, itemInSlot);
+
+                    itemInSlot.count += transferAmount;
                     itemInSlot.RefreshCount();
+
+                    int remainingCountToAdd = countToAdd - transferAmount;
+                    stackableItemFound = true;
+
+                    Debug.Log($"Remaining Count to Add = {remainingCountToAdd}");
+
+                    if(remainingCountToAdd == 0)
+                    {                      
                     return true;
+                    }
+                    else
+                    {
+                        AddItem(item, remainingCountToAdd);
+                    }
                 }
-                else if (itemInSlot == null){
-                    SpawnNewItem(item, slot);
-                    return true;
-                }
+            }
+            if (!stackableItemFound)
+            {
+                AddToFreeSlot(item, countToAdd);
+                return true;
             }
         }
-        else{
-            for (int i = 0; i < inventorySlots.Length; i++){
-                InventorySlot slot = inventorySlots[i];
-                InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
-                if (itemInSlot == null){
-                    SpawnNewItem(item, slot);
-                    return true;
-                }
-            }
+        else
+        {
+            AddToFreeSlot(item, countToAdd);
+            return true;
         }
         return false;
+    }
+
+
+
+    public int GetTransferAmount(int heldItemCount, InventoryItem slotItem)
+    {
+        int spaceInStack = slotItem.item.maxStackedItems - slotItem.count;
+        return Mathf.Min(heldItemCount, spaceInStack);
+    }
+
+    void AddToFreeSlot(Item item, int countToAdd = 1)
+    {
+        for (int i = 0; i < inventorySlots.Length; i++)
+        {
+            InventorySlot slot = inventorySlots[i];
+            InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+            if (itemInSlot == null){
+                SpawnNewItem(item, slot);
+                break;
+            }
+        }
     }
 
     public void SpawnNewItem(Item item, InventorySlot slot){

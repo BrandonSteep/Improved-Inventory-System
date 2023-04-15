@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private InventoryManager inventory;
+    [HideInInspector] public InventoryManager inventory;
 
     [Header("UI")]
     public Image image;
